@@ -498,7 +498,7 @@ INCLUDE(CompileFlags.cmake)
 
 # no clue why we are testing for this here
 INCLUDE(CheckSymbolExists)
-CHECK_SYMBOL_EXISTS(unsetenv "stdlib.h" HAVE_UNSETENV)
+CHECK_SYMBOL_EXISTS(unsetenv "stdlib.h" CMAKE_HAVE_UNSETENV)
 CHECK_SYMBOL_EXISTS(environ "stdlib.h" HAVE_ENVIRON_NOT_REQUIRE_PROTOTYPE)
 
 # CMAKE_TESTS_CDASH_SERVER: CDash server used by CMake/Tests.

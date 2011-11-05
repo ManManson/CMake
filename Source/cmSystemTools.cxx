@@ -1620,7 +1620,7 @@ std::string cmSystemTools::RelativePath(const char* local, const char* remote)
 //----------------------------------------------------------------------
 bool cmSystemTools::UnsetEnv(const char* value)
 {
-#if !defined(HAVE_UNSETENV)
+#if !defined(CMAKE_HAVE_UNSETENV)
   std::string var = value;
   var += "=";
   return cmSystemTools::PutEnv(var.c_str());
