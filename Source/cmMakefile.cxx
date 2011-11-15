@@ -403,6 +403,16 @@ bool cmMakefile::ExecuteCommand(const cmListFileFunction& lff,
         msg << ")";
         cmSystemTools::Message(msg.str().c_str());
         }
+      // Call the debugger callback.
+      typedef cmake::DebuggerCallbackType DebuggerCallbackType;
+      DebuggerCallbackType debuggerCallback;
+      void * debuggerClientData;
+      this->GetCMakeInstance()->GetDebuggerCallback(debuggerCallback,
+        debuggerClientData);
+      if(debuggerCallback)
+        {
+        (*debuggerCallback)(&lff, debuggerClientData);
+        }
       // Try invoking the command.
       if(!pcmd->InvokeInitialPass(lff.Arguments,status) ||
          status.GetNestedError())

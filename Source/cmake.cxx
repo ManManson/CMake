@@ -185,6 +185,8 @@ cmake::cmake()
   this->GlobalGenerator = 0;
   this->ProgressCallback = 0;
   this->ProgressCallbackClientData = 0;
+  this->DebuggerCallback = 0;
+  this->DebuggerCallbackClientData = 0;
   this->CurrentWorkingMode = NORMAL_MODE;
 
 #ifdef CMAKE_BUILD_WITH_CMAKE
@@ -2667,6 +2669,19 @@ void cmake::UpdateProgress(const char *msg, float prog)
     (*this->ProgressCallback)(msg, prog, this->ProgressCallbackClientData);
     return;
     }
+}
+
+void cmake::SetDebuggerCallback(DebuggerCallbackType f, void *cd)
+{
+  this->DebuggerCallback = f;
+  this->DebuggerCallbackClientData = cd;
+}
+
+void cmake::GetDebuggerCallback(DebuggerCallbackType & debuggerCallback,
+                                                void * clientData)
+{
+  debuggerCallback = this->DebuggerCallback;
+  clientData       = this->DebuggerCallbackClientData;
 }
 
 void cmake::GetCommandDocumentation(std::vector<cmDocumentationEntry>& v,

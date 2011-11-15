@@ -52,6 +52,7 @@ class cmPolicies;
 class cmListFileBacktrace;
 class cmTarget;
 class cmGeneratedFileStream;
+class cmListFileFunction;
 
 class cmake
 {
@@ -255,6 +256,18 @@ class cmake
    *  to be displayed without any progress percentage.
    */
   void SetProgressCallback(ProgressCallbackType f, void* clientData=0);
+
+  typedef void (*DebuggerCallbackType)
+    (const cmListFileFunction *lff, void *clientData);
+  /**
+   *  Set the function used in a CMake debugger as a callback.  This function
+   *  gets called before executing each command.  It gets passed a
+   *  cmListFileFunction, which contain the file name being processed, current
+   *  line number, the command name, and the command arguments.  See cmakedbg
+   *  for an application that uses this.
+   */
+  void SetDebuggerCallback(DebuggerCallbackType f, void* clientData=0);
+  void GetDebuggerCallback(DebuggerCallbackType & f, void* clientData);
 
   ///! this is called by generators to update the progress
   void UpdateProgress(const char *msg, float prog);
@@ -475,6 +488,8 @@ private:
   void operator=(const cmake&);  // Not implemented.
   ProgressCallbackType ProgressCallback;
   void* ProgressCallbackClientData;
+  DebuggerCallbackType DebuggerCallback;
+  void* DebuggerCallbackClientData;
   bool Verbose;
   bool InTryCompile;
   WorkingMode CurrentWorkingMode;

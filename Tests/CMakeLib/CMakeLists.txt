@@ -35,3 +35,20 @@ if(TEST_CompileCommandOutput)
   add_executable(runcompilecommands run_compile_commands.cxx)
   target_link_libraries(runcompilecommands CMakeLib)
 endif()
+
+add_executable(testDebuggerCallback testDebuggerCallback.cxx)
+target_link_libraries(testDebuggerCallback CMakeLib)
+execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${CMake_SOURCE_DIR}/Tests/CTestTest/SmallAndFast
+  ${CMAKE_CURRENT_BINARY_DIR}/SmallAndFastSource
+  )
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory
+  ${CMAKE_CURRENT_BINARY_DIR}/SmallAndFastBuild
+  )
+add_test(NAME CMakeLib.testDebuggerCallback
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/SmallAndFastBuild
+  COMMAND testDebuggerCallback ${CMAKE_CURRENT_BINARY_DIR}/SmallAndFastSource
+  )
+set_tests_properties(CMakeLib.testDebuggerCallback PROPERTIES
+  ENVIRONMENT "PATH=${CMake_BIN_DIR}"
+  )
