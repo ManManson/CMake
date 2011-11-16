@@ -411,7 +411,7 @@ bool cmMakefile::ExecuteCommand(const cmListFileFunction& lff,
         debuggerClientData);
       if(debuggerCallback)
         {
-        (*debuggerCallback)(&lff, debuggerClientData);
+        (*debuggerCallback)(const_cast<cmListFileFunction *>(&lff), debuggerClientData);
         }
       // Try invoking the command.
       if(!pcmd->InvokeInitialPass(lff.Arguments,status) ||

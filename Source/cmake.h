@@ -258,7 +258,7 @@ class cmake
   void SetProgressCallback(ProgressCallbackType f, void* clientData=0);
 
   typedef void (*DebuggerCallbackType)
-    (const cmListFileFunction *lff, void *clientData);
+    (cmListFileFunction *lff, void *clientData);
   /**
    *  Set the function used in a CMake debugger as a callback.  This function
    *  gets called before executing each command.  It gets passed a

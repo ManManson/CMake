@@ -6,7 +6,7 @@
 #include "cmListFileCache.h"
 #include "cmSystemTools.h"
 
-void PrintingInfoDebuggerCallback(const cmListFileFunction * lff, void * clientData )
+void PrintingInfoDebuggerCallback(cmListFileFunction * lff, void * clientData )
 {
   std::cout << "Name: " << lff->Name << '\n';
   std::cout << "FilePath: " << lff->FilePath << '\n';
