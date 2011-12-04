@@ -406,9 +406,7 @@ bool cmMakefile::ExecuteCommand(const cmListFileFunction& lff,
       // Call the debugger callback.
       typedef cmake::DebuggerCallbackType DebuggerCallbackType;
       DebuggerCallbackType debuggerCallback;
-      void * debuggerClientData;
-      this->GetCMakeInstance()->GetDebuggerCallback(debuggerCallback,
-        debuggerClientData);
+      void * debuggerClientData = this->GetCMakeInstance()->GetDebuggerCallback(debuggerCallback);
       if(debuggerCallback)
         {
         (*debuggerCallback)(&lff, debuggerClientData);

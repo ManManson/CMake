@@ -267,7 +267,7 @@ class cmake
    *  for an application that uses this.
    */
   void SetDebuggerCallback(DebuggerCallbackType f, void* clientData=0);
-  void GetDebuggerCallback(DebuggerCallbackType & f, void* clientData);
+  void * GetDebuggerCallback(DebuggerCallbackType & f);
 
   ///! this is called by generators to update the progress
   void UpdateProgress(const char *msg, float prog);

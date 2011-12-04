@@ -2677,11 +2677,10 @@ void cmake::SetDebuggerCallback(DebuggerCallbackType f, void *cd)
   this->DebuggerCallbackClientData = cd;
 }
 
-void cmake::GetDebuggerCallback(DebuggerCallbackType & debuggerCallback,
-                                                void * clientData)
+void * cmake::GetDebuggerCallback(DebuggerCallbackType & debuggerCallback)
 {
   debuggerCallback = this->DebuggerCallback;
-  clientData       = this->DebuggerCallbackClientData;
+  return this->DebuggerCallbackClientData;
 }
 
 void cmake::GetCommandDocumentation(std::vector<cmDocumentationEntry>& v,
