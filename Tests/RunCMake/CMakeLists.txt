@@ -175,3 +175,7 @@ add_RunCMake_test(CommandLine)
 add_RunCMake_test(install)
 add_RunCMake_test(CPackInstallProperties)
 add_RunCMake_test(ExternalProject)
+
+add_executable(pseudo_emulator pseudo_emulator.cxx)
+add_RunCMake_test(CMakeEmulator
+  -DPSEUDO_EMULATOR=$<TARGET_FILE:pseudo_emulator>)
