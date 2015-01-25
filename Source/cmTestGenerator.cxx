@@ -87,6 +87,22 @@ void cmTestGenerator::GenerateScriptForConfig(std::ostream& os,
     {
     // Use the target file on disk.
     exe = target->GetFullPath(config);
+
+    // Prepend with the emulator when cross compiling if required.
+    const std::string emulator = mf->GetSafeDefinition("CMAKE_EMULATOR");
+    if (!emulator.empty())
+      {
+      std::vector<std::string> emulatorWithArgs;
+      cmSystemTools::ExpandListArgument(emulator, emulatorWithArgs);
+      os << emulatorWithArgs[0] << " ";
+      for(std::vector<std::string>::const_iterator ei =
+            emulatorWithArgs.begin()+1;
+          ei != emulatorWithArgs.end();
+          ++ei)
+        {
+        os << *ei << " ";
+        }
+      }
     }
   else
     {
