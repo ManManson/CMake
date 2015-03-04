@@ -33,6 +33,7 @@ Variables that Provide Information
    /variable/CMAKE_CURRENT_SOURCE_DIR
    /variable/CMAKE_DL_LIBS
    /variable/CMAKE_EDIT_COMMAND
+   /variable/CMAKE_EMULATOR
    /variable/CMAKE_EXECUTABLE_SUFFIX
    /variable/CMAKE_EXTRA_GENERATOR
    /variable/CMAKE_EXTRA_SHARED_LIBRARY_SUFFIXES

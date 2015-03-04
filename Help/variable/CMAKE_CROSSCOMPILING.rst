@@ -1,8 +1,12 @@
-CMAKE_CROSSCOMPILING
---------------------
+CMAKE_EMULATOR
+--------------
 
-Is CMake currently cross compiling.
+An emulator command for try_run execution and tests on generated
+executables.
 
-This variable will be set to true by CMake if CMake is cross
-compiling.  Specifically if the build platform is different from the
-target platform.
+This variable is only used when :variable:`CMAKE_CROSSCOMPILING` is on. It should point to
+a command on the host system that can run executables built for the target
+system. The command will be used to run :command:`try_run` generated executables, which
+avoids manual population of the TryRunResults.cmake file.  This command will
+also be added as a prefix to :command:`add_test` test commands for built
+target system executables.
