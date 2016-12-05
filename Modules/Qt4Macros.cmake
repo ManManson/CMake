@@ -1,3 +1,6 @@
+# Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
+# file Copyright.txt or https://cmake.org/licensing for details.
+
 #.rst:
 # Qt4Macros
 # ---------
@@ -5,20 +8,6 @@
 #
 #
 # This file is included by FindQt4.cmake, don't include it directly.
-
-#=============================================================================
-# Copyright 2005-2009 Kitware, Inc.
-#
-# Distributed under the OSI-approved BSD License (the "License");
-# see accompanying file Copyright.txt for details.
-#
-# This software is distributed WITHOUT ANY WARRANTY; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the License for more information.
-#=============================================================================
-# (To distribute this file outside of CMake, substitute the full
-#  License text for the above reference.)
-
 
 ######################################
 #
@@ -158,7 +147,7 @@ macro (QT4_GENERATE_MOC infile outfile )
      set(_outfile "${CMAKE_CURRENT_BINARY_DIR}/${outfile}")
    endif()
 
-   if ("x${ARGV2}" STREQUAL "xTARGET")
+   if (${ARGC} GREATER 3 AND "x${ARGV2}" STREQUAL "xTARGET")
       set(moc_target ${ARGV3})
    endif()
    QT4_CREATE_MOC_COMMAND(${abs_infile} ${_outfile} "${moc_flags}" "" "${moc_target}")
@@ -329,7 +318,10 @@ endmacro()
 macro(QT4_ADD_DBUS_ADAPTOR _sources _xml_file _include _parentClass) # _optionalBasename _optionalClassName)
   get_filename_component(_infile ${_xml_file} ABSOLUTE)
 
-  set(_optionalBasename "${ARGV4}")
+  unset(_optionalBasename)
+  if(${ARGC} GREATER 4)
+    set(_optionalBasename "${ARGV4}")
+  endif()
   if (_optionalBasename)
     set(_basename ${_optionalBasename} )
   else ()
@@ -337,7 +329,10 @@ macro(QT4_ADD_DBUS_ADAPTOR _sources _xml_file _include _parentClass) # _optional
     string(TOLOWER ${_basename} _basename)
   endif ()
 
-  set(_optionalClassName "${ARGV5}")
+  unset(_optionalClassName)
+  if(${ARGC} GREATER 5)
+    set(_optionalClassName "${ARGV5}")
+  endif()
   set(_header "${CMAKE_CURRENT_BINARY_DIR}/${_basename}.h")
   set(_impl   "${CMAKE_CURRENT_BINARY_DIR}/${_basename}.cpp")
   set(_moc    "${CMAKE_CURRENT_BINARY_DIR}/${_basename}.moc")
@@ -435,14 +430,14 @@ macro(QT4_CREATE_TRANSLATION _qm_files)
        set(_ts_pro ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${_ts_name}_lupdate.pro)
        set(_pro_srcs)
        foreach(_pro_src ${_my_sources})
-         set(_pro_srcs "${_pro_srcs} \\\n  \"${_pro_src}\"")
+         string(APPEND _pro_srcs " \\\n  \"${_pro_src}\"")
        endforeach()
        set(_pro_includes)
        get_directory_property(_inc_DIRS INCLUDE_DIRECTORIES)
        list(REMOVE_DUPLICATES _inc_DIRS)
        foreach(_pro_include ${_inc_DIRS})
          get_filename_component(_abs_include "${_pro_include}" ABSOLUTE)
-         set(_pro_includes "${_pro_includes} \\\n  \"${_abs_include}\"")
+         string(APPEND _pro_includes " \\\n  \"${_abs_include}\"")
        endforeach()
        file(WRITE ${_ts_pro} "SOURCES =${_pro_srcs}\nINCLUDEPATH =${_pro_includes}\n")
      endif()

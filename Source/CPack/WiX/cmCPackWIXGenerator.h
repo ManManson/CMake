@@ -1,25 +1,15 @@
-/*============================================================================
-  CMake - Cross Platform Makefile Generator
-  Copyright 2000-2012 Kitware, Inc.
-
-  Distributed under the OSI-approved BSD License (the "License");
-  see accompanying file Copyright.txt for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even the
-  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  See the License for more information.
-============================================================================*/
-
+/* Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
+   file Copyright.txt or https://cmake.org/licensing for details.  */
 #ifndef cmCPackWIXGenerator_h
 #define cmCPackWIXGenerator_h
+
+#include <CPack/cmCPackGenerator.h>
 
 #include "cmWIXPatch.h"
 #include "cmWIXShortcut.h"
 
-#include <CPack/cmCPackGenerator.h>
-
-#include <string>
 #include <map>
+#include <string>
 
 class cmWIXSourceWriter;
 class cmWIXDirectoriesSourceWriter;
@@ -42,30 +32,20 @@ protected:
 
   virtual int PackageFiles();
 
-  virtual const char* GetOutputExtension()
-    {
-    return ".msi";
-    }
+  virtual const char* GetOutputExtension() { return ".msi"; }
 
   virtual enum CPackSetDestdirSupport SupportsSetDestdir() const
-    {
+  {
     return SETDESTDIR_UNSUPPORTED;
-    }
+  }
 
-  virtual bool SupportsAbsoluteDestination() const
-    {
-    return false;
-    }
+  virtual bool SupportsAbsoluteDestination() const { return false; }
 
-  virtual bool SupportsComponentInstallation() const
-    {
-    return true;
-    }
+  virtual bool SupportsComponentInstallation() const { return true; }
 
 private:
   typedef std::map<std::string, std::string> id_map_t;
   typedef std::map<std::string, size_t> ambiguity_map_t;
-  typedef std::map<std::string, cmWIXShortcut> shortcut_map_t;
   typedef std::set<std::string> extension_set_t;
 
   bool InitializeWiXConfiguration();
@@ -76,11 +56,12 @@ private:
 
   void CreateWiXPropertiesIncludeFile();
 
-  void CopyDefinition(
-    cmWIXSourceWriter &source, std::string const& name);
+  void CreateWiXProductFragmentIncludeFile();
 
-  void AddDefinition(cmWIXSourceWriter& source,
-    std::string const& name, std::string const& value);
+  void CopyDefinition(cmWIXSourceWriter& source, std::string const& name);
+
+  void AddDefinition(cmWIXSourceWriter& source, std::string const& name,
+                     std::string const& value);
 
   bool CreateWiXSourceFiles();
 
@@ -88,21 +69,25 @@ private:
 
   bool GenerateMainSourceFileFromTemplate();
 
-  bool CreateFeatureHierarchy(
-    cmWIXFeaturesSourceWriter& featureDefinitions);
+  bool CreateFeatureHierarchy(cmWIXFeaturesSourceWriter& featureDefinitions);
 
   bool AddComponentsToFeature(
-    std::string const& rootPath,
-    std::string const& featureId,
+    std::string const& rootPath, std::string const& featureId,
     cmWIXDirectoriesSourceWriter& directoryDefinitions,
     cmWIXFilesSourceWriter& fileDefinitions,
-    cmWIXFeaturesSourceWriter& featureDefinitions,
-    shortcut_map_t& shortcutMap);
+    cmWIXFeaturesSourceWriter& featureDefinitions, cmWIXShortcuts& shortcuts);
 
-  bool CreateStartMenuShortcuts(
-    std::string const& cpackComponentName,
-    std::string const& featureId,
-    shortcut_map_t& shortcutMap,
+  bool CreateShortcuts(std::string const& cpackComponentName,
+                       std::string const& featureId,
+                       cmWIXShortcuts const& shortcuts,
+                       bool emitUninstallShortcut,
+                       cmWIXFilesSourceWriter& fileDefinitions,
+                       cmWIXFeaturesSourceWriter& featureDefinitions);
+
+  bool CreateShortcutsOfSpecificType(
+    cmWIXShortcuts::Type type, std::string const& cpackComponentName,
+    std::string const& featureId, std::string const& idPrefix,
+    cmWIXShortcuts const& shortcuts, bool emitUninstallShortcut,
     cmWIXFilesSourceWriter& fileDefinitions,
     cmWIXFeaturesSourceWriter& featureDefinitions);
 
@@ -114,19 +99,19 @@ private:
 
   bool RunWiXCommand(std::string const& command);
 
-  bool RunCandleCommand(
-    std::string const& sourceFile, std::string const& objectFile);
+  bool RunCandleCommand(std::string const& sourceFile,
+                        std::string const& objectFile);
 
   bool RunLightCommand(std::string const& objectFiles);
 
-  void AddDirectoryAndFileDefinitons(std::string const& topdir,
-    std::string const& directoryId,
+  void AddDirectoryAndFileDefinitons(
+    std::string const& topdir, std::string const& directoryId,
     cmWIXDirectoriesSourceWriter& directoryDefinitions,
     cmWIXFilesSourceWriter& fileDefinitions,
     cmWIXFeaturesSourceWriter& featureDefinitions,
-    const std::vector<std::string>& pkgExecutables,
-    const std::vector<std::string>& desktopExecutables,
-    shortcut_map_t& shortcutMap);
+    std::vector<std::string> const& packageExecutables,
+    std::vector<std::string> const& desktopExecutables,
+    cmWIXShortcuts& shortcuts);
 
   bool RequireOption(std::string const& name, std::string& value) const;
 
@@ -142,19 +127,20 @@ private:
 
   std::string CreateNewIdForPath(std::string const& path);
 
-  static std::string CreateHashedId(
-    std::string const& path, std::string const& normalizedFilename);
+  static std::string CreateHashedId(std::string const& path,
+                                    std::string const& normalizedFilename);
 
-  std::string NormalizeComponentForId(
-    std::string const& component, size_t& replacementCount);
+  std::string NormalizeComponentForId(std::string const& component,
+                                      size_t& replacementCount);
 
   static bool IsLegalIdCharacter(char c);
 
-  void CollectExtensions(
-       std::string const& variableName, extension_set_t& extensions);
+  void CollectExtensions(std::string const& variableName,
+                         extension_set_t& extensions);
 
-  void AddCustomFlags(
-    std::string const& variableName, std::ostream& stream);
+  void AddCustomFlags(std::string const& variableName, std::ostream& stream);
+
+  std::string RelativePathWithoutComponentPrefix(std::string const& path);
 
   std::vector<std::string> WixSources;
   id_map_t PathToIdMap;
@@ -163,11 +149,11 @@ private:
   extension_set_t CandleExtensions;
   extension_set_t LightExtensions;
 
-  bool HasDesktopShortcuts;
-
   std::string CPackTopLevel;
 
   cmWIXPatch* Patch;
+
+  cmWIXSourceWriter::GuidType ComponentGuidType;
 };
 
 #endif

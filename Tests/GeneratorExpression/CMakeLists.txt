@@ -66,7 +66,7 @@ add_custom_target(check-part1 ALL
     -Dtest_colons_4=$<1:C:\\CMake>
     -Dtest_colons_5=$<1:C:/CMake>
     -P ${CMAKE_CURRENT_SOURCE_DIR}/check-part1.cmake
-  COMMAND ${CMAKE_COMMAND} -E echo "check done (part 1 of 3)"
+  COMMAND ${CMAKE_COMMAND} -E echo "check done (part 1 of 4)"
   VERBATIM
   )
 
@@ -137,7 +137,7 @@ add_custom_target(check-part2 ALL
     -Dtest_arbitrary_content_comma_9=$<1:a,,b,,>
     -Dtest_arbitrary_content_comma_10=$<1:,,a,,b,,>
     -P ${CMAKE_CURRENT_SOURCE_DIR}/check-part2.cmake
-  COMMAND ${CMAKE_COMMAND} -E echo "check done (part 2 of 3)"
+  COMMAND ${CMAKE_COMMAND} -E echo "check done (part 2 of 4)"
   VERBATIM
 )
 
@@ -171,6 +171,13 @@ add_executable(Alias::SomeExe ALIAS someexe)
 
 add_library(Alias::SomeLib ALIAS empty1)
 
+add_library(importedFallback STATIC IMPORTED)
+set_property(TARGET importedFallback PROPERTY IMPORTED_LOCATION_DEBUG debug_loc)
+set_property(TARGET importedFallback PROPERTY IMPORTED_LOCATION_RELEASE release_loc)
+set_property(TARGET importedFallback PROPERTY IMPORTED_LOCATION fallback_loc)
+set_property(TARGET importedFallback PROPERTY MAP_IMPORTED_CONFIG_DEBUG "" DEBUG)
+set_property(TARGET importedFallback PROPERTY MAP_IMPORTED_CONFIG_RELEASE "")
+
 add_custom_target(check-part3 ALL
   COMMAND ${CMAKE_COMMAND}
     -Dtest_version_greater_1=$<VERSION_GREATER:1.0,1.1.1>
@@ -184,6 +191,7 @@ add_custom_target(check-part3 ALL
     -Dtest_imported_release=$<TARGET_PROPERTY:imported4,INCLUDE_DIRECTORIES>
     -Dtest_imported_relwithdebinfo=$<TARGET_PROPERTY:imported4,INCLUDE_DIRECTORIES>
     -Dtest_imported_minsizerel=$<TARGET_PROPERTY:imported4,INCLUDE_DIRECTORIES>
+    -Dtest_imported_fallback=$<STREQUAL:$<TARGET_FILE_NAME:importedFallback>,fallback_loc>
     -Dtest_alias_file_exe=$<STREQUAL:$<TARGET_FILE:Alias::SomeExe>,$<TARGET_FILE:someexe>>
     -Dtest_alias_file_lib=$<STREQUAL:$<TARGET_FILE:Alias::SomeLib>,$<TARGET_FILE:empty1>>
     -Dtest_alias_target_name=$<STREQUAL:$<TARGET_PROPERTY:Alias::SomeLib,NAME>,$<TARGET_PROPERTY:empty1,NAME>>
@@ -221,7 +229,27 @@ add_custom_target(check-part3 ALL
     -Dequal22=$<EQUAL:10,-012>
     -Dequal23=$<EQUAL:-10,-012>
     -P ${CMAKE_CURRENT_SOURCE_DIR}/check-part3.cmake
-  COMMAND ${CMAKE_COMMAND} -E echo "check done (part 3 of 3)"
+  COMMAND ${CMAKE_COMMAND} -E echo "check done (part 3 of 4)"
+  VERBATIM
+  )
+
+if(WIN32)
+  set(test_shell_path c:/shell/path)
+else()
+  set(test_shell_path /shell/path)
+endif()
+set(path_prefix BYPASS_FURTHER_CONVERSION)
+
+add_custom_target(check-part4 ALL
+  COMMAND ${CMAKE_COMMAND}
+    # Prefix path to bypass its further conversion when being processed by
+    # CMake as command-line argument
+    -Dtest_shell_path=${path_prefix}$<SHELL_PATH:${test_shell_path}>
+    -Dpath_prefix=${path_prefix}
+    -DWIN32=${WIN32}
+    -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
+    -P ${CMAKE_CURRENT_SOURCE_DIR}/check-part4.cmake
+  COMMAND ${CMAKE_COMMAND} -E echo "check done (part 4 of 4)"
   VERBATIM
   )
 
@@ -229,6 +257,7 @@ add_custom_target(check-part3 ALL
 # Cover test properties with generator expressions.
 add_executable(echo echo.c)
 add_executable(pwd pwd.c)
+set_property(SOURCE echo.c PROPERTY COMPILE_FLAGS $<1:-DSRC_GENEX_WORKS>)
 
 add_test(NAME echo-configuration COMMAND echo $<CONFIGURATION>)
 set_property(TEST echo-configuration PROPERTY

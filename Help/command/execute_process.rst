@@ -18,15 +18,16 @@ Execute one or more child processes.
                   [OUTPUT_QUIET]
                   [ERROR_QUIET]
                   [OUTPUT_STRIP_TRAILING_WHITESPACE]
-                  [ERROR_STRIP_TRAILING_WHITESPACE])
+                  [ERROR_STRIP_TRAILING_WHITESPACE]
+                  [ENCODING <name>])
 
-Runs the given sequence of one or more commands with the standard
+Runs the given sequence of one or more commands in parallel with the standard
 output of each process piped to the standard input of the next.
 A single standard error pipe is used for all processes.
 
 Options:
 
-COMMAND
+``COMMAND``
  A child process command line.
 
  CMake executes the child process using operating system APIs directly.
@@ -36,31 +37,43 @@ COMMAND
  (Use the ``INPUT_*``, ``OUTPUT_*``, and ``ERROR_*`` options to
  redirect stdin, stdout, and stderr.)
 
-WORKING_DIRECTORY
+ If a sequential execution of multiple commands is required, use multiple
+ :command:`execute_process` calls with a single ``COMMAND`` argument.
+
+``WORKING_DIRECTORY``
  The named directory will be set as the current working directory of
  the child processes.
 
-TIMEOUT
+``TIMEOUT``
  The child processes will be terminated if they do not finish in the
  specified number of seconds (fractions are allowed).
 
-RESULT_VARIABLE
+``RESULT_VARIABLE``
  The variable will be set to contain the result of running the processes.
  This will be an integer return code from the last child or a string
  describing an error condition.
 
-OUTPUT_VARIABLE, ERROR_VARIABLE
+``OUTPUT_VARIABLE``, ``ERROR_VARIABLE``
  The variable named will be set with the contents of the standard output
  and standard error pipes, respectively.  If the same variable is named
  for both pipes their output will be merged in the order produced.
 
-INPUT_FILE, OUTPUT_FILE, ERROR_FILE
+``INPUT_FILE, OUTPUT_FILE``, ``ERROR_FILE``
  The file named will be attached to the standard input of the first
  process, standard output of the last process, or standard error of
- all processes, respectively.
+ all processes, respectively.  If the same file is named for both
+ output and error then it will be used for both.
 
-OUTPUT_QUIET, ERROR_QUIET
+``OUTPUT_QUIET``, ``ERROR_QUIET``
  The standard output or standard error results will be quietly ignored.
+
+``ENCODING <name>``
+ On Windows, the encoding that is used to decode output from the process.
+ Ignored on other platforms.
+ Valid encoding names are: ``AUTO`` (the default), ``NONE``, ``UTF8``,
+ ``ANSI`` and ``OEM``.
+ ``AUTO`` encoding means current active console's codepage will be used
+ or if that isn't available then ``ANSI`` codepage will be used.
 
 If more than one ``OUTPUT_*`` or ``ERROR_*`` option is given for the
 same pipe the precedence is not specified.

@@ -134,7 +134,7 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>12</width>
              <height>23</height>
             </size>
            </property>
@@ -238,6 +238,13 @@
            </property>
           </widget>
          </item>
+          <item>
+            <widget class="QPushButton" name="OpenProjectButton">
+              <property name="text">
+                <string>Open &amp;Project</string>
+              </property>
+            </widget>
+          </item>
          <item>
           <widget class="QLabel" name="Generator">
            <property name="text">

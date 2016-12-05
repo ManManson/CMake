@@ -14,6 +14,7 @@ All Modules
    :maxdepth: 1
 
    /module/AddFileDependencies
+   /module/AndroidTestUtilities
    /module/BundleUtilities
    /module/CheckCCompilerFlag
    /module/CheckCSourceCompiles
@@ -22,6 +23,7 @@ All Modules
    /module/CheckCXXSourceCompiles
    /module/CheckCXXSourceRuns
    /module/CheckCXXSymbolExists
+   /module/CheckFortranCompilerFlag
    /module/CheckFortranFunctionExists
    /module/CheckFortranSourceCompiles
    /module/CheckFunctionExists
@@ -59,10 +61,12 @@ All Modules
    /module/CPackIFW
    /module/CPackNSIS
    /module/CPackPackageMaker
+   /module/CPackProductBuild
    /module/CPackRPM
    /module/CPack
    /module/CPackWIX
    /module/CTest
+   /module/CTestCoverageCollectGCOV
    /module/CTestScriptMode
    /module/CTestUseLaunchers
    /module/Dart
@@ -118,6 +122,7 @@ All Modules
    /module/FindHTMLHelp
    /module/FindIce
    /module/FindIcotool
+   /module/FindICU
    /module/FindImageMagick
    /module/FindIntl
    /module/FindITK
@@ -125,7 +130,6 @@ All Modules
    /module/FindJava
    /module/FindJNI
    /module/FindJPEG
-   /module/FindJsonCpp
    /module/FindKDE3
    /module/FindKDE4
    /module/FindLAPACK
@@ -134,6 +138,7 @@ All Modules
    /module/FindLibLZMA
    /module/FindLibXml2
    /module/FindLibXslt
+   /module/FindLTTngUST
    /module/FindLua50
    /module/FindLua51
    /module/FindLua
@@ -207,10 +212,13 @@ All Modules
    /module/FindTIFF
    /module/FindUnixCommands
    /module/FindVTK
+   /module/FindVulkan
    /module/FindWget
    /module/FindWish
    /module/FindwxWidgets
    /module/FindwxWindows
+   /module/FindXCTest
+   /module/FindXalanC
    /module/FindXercesC
    /module/FindX11
    /module/FindXMLRPC

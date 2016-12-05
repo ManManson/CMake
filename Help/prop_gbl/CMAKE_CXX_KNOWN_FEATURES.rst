@@ -9,10 +9,19 @@ be listed in the :variable:`CMAKE_CXX_COMPILE_FEATURES` variable.
 
 The features listed here may be used with the :command:`target_compile_features`
 command.  See the :manual:`cmake-compile-features(7)` manual for information on
-compile features.
+compile features and a list of supported compilers.
 
 
 The features known to this version of CMake are:
+
+``cxx_std_98``
+  Compiler mode is aware of C++ 98.
+
+``cxx_std_11``
+  Compiler mode is aware of C++ 11.
+
+``cxx_std_14``
+  Compiler mode is aware of C++ 14.
 
 ``cxx_aggregate_default_initializers``
   Aggregate default initializers, as defined in N3605_.
@@ -270,7 +279,7 @@ The features known to this version of CMake are:
   .. _N2442: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2442.htm
 
 ``cxx_uniform_initialization``
-  Uniform intialization, as defined in N2640_.
+  Uniform initialization, as defined in N2640_.
 
   .. _N2640: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2640.pdf
 

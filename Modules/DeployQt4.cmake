@@ -1,3 +1,6 @@
+# Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
+# file Copyright.txt or https://cmake.org/licensing for details.
+
 #.rst:
 # DeployQt4
 # ---------
@@ -99,19 +102,6 @@
 # at install time.  <component> is the COMPONENT used for bundle fixup
 # and plugin installation.  See documentation of FIXUP_QT4_BUNDLE.
 
-#=============================================================================
-# Copyright 2011 Mike McQuaid <mike@mikemcquaid.com>
-#
-# Distributed under the OSI-approved BSD License (the "License");
-# see accompanying file Copyright.txt for details.
-#
-# This software is distributed WITHOUT ANY WARRANTY; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the License for more information.
-#=============================================================================
-# (To distribute this file outside of CMake, substitute the full
-#  License text for the above reference.)
-
 # The functions defined in this file depend on the fixup_bundle function
 # (and others) found in BundleUtilities.cmake
 
@@ -126,7 +116,10 @@ function(write_qt4_conf qt_conf_dir qt_conf_contents)
 endfunction()
 
 function(resolve_qt4_paths paths_var)
-        set(executable_path ${ARGV1})
+        unset(executable_path)
+        if(ARGC GREATER 1)
+                set(executable_path ${ARGV1})
+        endif()
 
         set(paths_resolved)
         foreach(path ${${paths_var}})
@@ -144,11 +137,26 @@ function(resolve_qt4_paths paths_var)
 endfunction()
 
 function(fixup_qt4_executable executable)
-        set(qtplugins ${ARGV1})
-        set(libs ${ARGV2})
-        set(dirs ${ARGV3})
-        set(plugins_dir ${ARGV4})
-        set(request_qt_conf ${ARGV5})
+        unset(qtplugins)
+        if(ARGC GREATER 1)
+                set(qtplugins ${ARGV1})
+        endif()
+        unset(libs)
+        if(ARGC GREATER 2)
+                set(libs ${ARGV2})
+        endif()
+        unset(dirs)
+        if(ARGC GREATER 3)
+                set(dirs ${ARGV3})
+        endif()
+        unset(plugins_dir)
+        if(ARGC GREATER 4)
+                set(plugins_dir ${ARGV4})
+        endif()
+        unset(request_qt_conf)
+        if(ARGC GREATER 5)
+                set(request_qt_conf ${ARGV5})
+        endif()
 
         message(STATUS "fixup_qt4_executable")
         message(STATUS "  executable='${executable}'")
@@ -169,7 +177,7 @@ function(fixup_qt4_executable executable)
                 set(qt_conf_dir "${executable}/Contents/Resources")
                 set(executable_path "${executable}")
                 set(write_qt_conf TRUE)
-                if(NOT plugins_dir)
+                if(NOT DEFINED plugins_dir)
                         set(plugins_dir "${DeployQt4_apple_plugins_dir}")
                 endif()
         else()
@@ -204,9 +212,19 @@ function(fixup_qt4_executable executable)
 endfunction()
 
 function(install_qt4_plugin_path plugin executable copy installed_plugin_path_var)
-        set(plugins_dir ${ARGV4})
-        set(component ${ARGV5})
-        set(configurations ${ARGV6})
+        unset(plugins_dir)
+        if(ARGC GREATER 4)
+                set(plugins_dir ${ARGV4})
+        endif()
+        unset(component)
+        if(ARGC GREATER 5)
+                set(component ${ARGV5})
+        endif()
+        unset(configurations)
+        if(ARGC GREATER 6)
+                set(configurations ${ARGV6})
+        endif()
+
         if(EXISTS "${plugin}")
                 if(APPLE)
                         if(NOT plugins_dir)
@@ -219,7 +237,7 @@ function(install_qt4_plugin_path plugin executable copy installed_plugin_path_va
                                 set(plugins_path ".")
                         endif()
                         if(plugins_dir)
-                                set(plugins_path "${plugins_path}/${plugins_dir}")
+                                string(APPEND plugins_path "/${plugins_dir}")
                         endif()
                 endif()
 
@@ -235,7 +253,7 @@ function(install_qt4_plugin_path plugin executable copy installed_plugin_path_va
                         get_filename_component(plugin_group "${plugin_path}" NAME)
                         set(${plugin_group_var} "${plugin_group}")
                 endif()
-                set(plugins_path "${plugins_path}/${plugin_group}")
+                string(APPEND plugins_path "/${plugin_group}")
 
                 if(${copy})
                         file(MAKE_DIRECTORY "${plugins_path}")
@@ -253,8 +271,15 @@ function(install_qt4_plugin_path plugin executable copy installed_plugin_path_va
 endfunction()
 
 function(install_qt4_plugin plugin executable copy installed_plugin_path_var)
-        set(plugins_dir ${ARGV4})
-        set(component ${ARGV5})
+        unset(plugins_dir)
+        if(ARGC GREATER 4)
+                set(plugins_dir ${ARGV4})
+        endif()
+        unset(component)
+        if(ARGC GREATER 5)
+                set(component ${ARGV5})
+        endif()
+
         if(EXISTS "${plugin}")
                 install_qt4_plugin_path("${plugin}" "${executable}" "${copy}" "${installed_plugin_path_var}" "${plugins_dir}" "${component}")
         else()
@@ -287,12 +312,31 @@ function(install_qt4_plugin plugin executable copy installed_plugin_path_var)
 endfunction()
 
 function(install_qt4_executable executable)
-        set(qtplugins ${ARGV1})
-        set(libs ${ARGV2})
-        set(dirs ${ARGV3})
-        set(plugins_dir ${ARGV4})
-        set(request_qt_conf ${ARGV5})
-        set(component ${ARGV6})
+        unset(qtplugins)
+        if(ARGC GREATER 1)
+                set(qtplugins ${ARGV1})
+        endif()
+        unset(libs)
+        if(ARGC GREATER 2)
+                set(libs ${ARGV2})
+        endif()
+        unset(dirs)
+        if(ARGC GREATER 3)
+                set(dirs ${ARGV3})
+        endif()
+        unset(plugins_dir)
+        if(ARGC GREATER 4)
+                set(plugins_dir ${ARGV4})
+        endif()
+        unset(request_qt_conf)
+        if(ARGC GREATER 5)
+                set(request_qt_conf ${ARGV5})
+        endif()
+        unset(component)
+        if(ARGC GREATER 6)
+                set(component ${ARGV6})
+        endif()
+
         if(QT_LIBRARY_DIR)
                 list(APPEND dirs "${QT_LIBRARY_DIR}")
         endif()

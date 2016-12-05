@@ -1,53 +1,42 @@
-/*============================================================================
-  CMake - Cross Platform Makefile Generator
-  Copyright 2014 Kitware, Inc.
-
-  Distributed under the OSI-approved BSD License (the "License");
-  see accompanying file Copyright.txt for details.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even the
-  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  See the License for more information.
-============================================================================*/
-
+/* Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
+   file Copyright.txt or https://cmake.org/licensing for details.  */
 #include "cmWIXFilesSourceWriter.h"
+
 #include "cmWIXAccessControlList.h"
 
 #include <cmInstalledFile.h>
 
+#include <cmSystemTools.h>
+#include <cmUuid.h>
+
 #include <sys/types.h>
+// include sys/stat.h after sys/types.h
 #include <sys/stat.h>
 
 cmWIXFilesSourceWriter::cmWIXFilesSourceWriter(cmCPackLog* logger,
-  std::string const& filename):
-    cmWIXSourceWriter(logger, filename)
+                                               std::string const& filename,
+                                               GuidType componentGuidType)
+  : cmWIXSourceWriter(logger, filename, componentGuidType)
 {
-
 }
 
-void cmWIXFilesSourceWriter::EmitShortcut(
-  std::string const& id,
-  cmWIXShortcut const& shortcut,
-  bool desktop)
+void cmWIXFilesSourceWriter::EmitShortcut(std::string const& id,
+                                          cmWIXShortcut const& shortcut,
+                                          std::string const& shortcutPrefix,
+                                          size_t shortcutIndex)
 {
-  std::string shortcutId;
+  std::ostringstream shortcutId;
+  shortcutId << shortcutPrefix << id;
 
-  if(desktop)
-    {
-    shortcutId = "CM_DS";
-    }
-  else
-    {
-    shortcutId = "CM_S";
-    }
-
-  shortcutId += id;
+  if (shortcutIndex > 0) {
+    shortcutId << "_" << shortcutIndex;
+  }
 
   std::string fileId = std::string("CM_F") + id;
 
   BeginElement("Shortcut");
-  AddAttribute("Id", shortcutId);
-  AddAttribute("Name", shortcut.textLabel);
+  AddAttribute("Id", shortcutId.str());
+  AddAttribute("Name", shortcut.label);
   std::string target = "[#" + fileId + "]";
   AddAttribute("Target", target);
   AddAttribute("WorkingDirectory", shortcut.workingDirectoryId);
@@ -62,30 +51,14 @@ void cmWIXFilesSourceWriter::EmitRemoveFolder(std::string const& id)
   EndElement("RemoveFolder");
 }
 
-void cmWIXFilesSourceWriter::EmitStartMenuShortcutRegistryValue(
-  std::string const& registryKey,
-  std::string const& cpackComponentName)
-{
-  EmitInstallRegistryValue(registryKey, cpackComponentName, std::string());
-}
-
-void cmWIXFilesSourceWriter::EmitDesktopShortcutRegistryValue(
-  std::string const& registryKey,
-  std::string const& cpackComponentName)
-{
-  EmitInstallRegistryValue(registryKey, cpackComponentName, "_desktop");
-}
-
 void cmWIXFilesSourceWriter::EmitInstallRegistryValue(
-  std::string const& registryKey,
-  std::string const& cpackComponentName,
+  std::string const& registryKey, std::string const& cpackComponentName,
   std::string const& suffix)
 {
   std::string valueName;
-  if(!cpackComponentName.empty())
-    {
-      valueName = cpackComponentName + "_";
-    }
+  if (!cpackComponentName.empty()) {
+    valueName = cpackComponentName + "_";
+  }
 
   valueName += "installed";
   valueName += suffix;
@@ -113,12 +86,10 @@ void cmWIXFilesSourceWriter::EmitUninstallShortcut(
 }
 
 std::string cmWIXFilesSourceWriter::EmitComponentCreateFolder(
-  std::string const& directoryId,
-  std::string const& guid,
+  std::string const& directoryId, std::string const& guid,
   cmInstalledFile const* installedFile)
 {
-  std::string componentId =
-    std::string("CM_C_EMPTY_") + directoryId;
+  std::string componentId = std::string("CM_C_EMPTY_") + directoryId;
 
   BeginElement("DirectoryRef");
   AddAttribute("Id", directoryId);
@@ -129,11 +100,10 @@ std::string cmWIXFilesSourceWriter::EmitComponentCreateFolder(
 
   BeginElement("CreateFolder");
 
-  if(installedFile)
-    {
+  if (installedFile) {
     cmWIXAccessControlList acl(Logger, *installedFile, *this);
     acl.Apply();
-    }
+  }
 
   EndElement("CreateFolder");
   EndElement("Component");
@@ -143,33 +113,30 @@ std::string cmWIXFilesSourceWriter::EmitComponentCreateFolder(
 }
 
 std::string cmWIXFilesSourceWriter::EmitComponentFile(
-  std::string const& directoryId,
-  std::string const& id,
-  std::string const& filePath,
-  cmWIXPatch &patch,
+  std::string const& directoryId, std::string const& id,
+  std::string const& filePath, cmWIXPatch& patch,
   cmInstalledFile const* installedFile)
 {
   std::string componentId = std::string("CM_C") + id;
   std::string fileId = std::string("CM_F") + id;
+
+  std::string guid = CreateGuidFromComponentId(componentId);
 
   BeginElement("DirectoryRef");
   AddAttribute("Id", directoryId);
 
   BeginElement("Component");
   AddAttribute("Id", componentId);
-  AddAttribute("Guid", "*");
+  AddAttribute("Guid", guid);
 
-  if(installedFile)
-    {
-    if(installedFile->GetPropertyAsBool("CPACK_NEVER_OVERWRITE"))
-      {
+  if (installedFile) {
+    if (installedFile->GetPropertyAsBool("CPACK_NEVER_OVERWRITE")) {
       AddAttribute("NeverOverwrite", "yes");
-      }
-    if(installedFile->GetPropertyAsBool("CPACK_PERMANENT"))
-      {
-      AddAttribute("Permanent", "yes");
-      }
     }
+    if (installedFile->GetPropertyAsBool("CPACK_PERMANENT")) {
+      AddAttribute("Permanent", "yes");
+    }
+  }
 
   BeginElement("File");
   AddAttribute("Id", fileId);
@@ -179,16 +146,14 @@ std::string cmWIXFilesSourceWriter::EmitComponentFile(
   mode_t fileMode = 0;
   cmSystemTools::GetPermissions(filePath.c_str(), fileMode);
 
-  if(!(fileMode & S_IWRITE))
-    {
+  if (!(fileMode & S_IWRITE)) {
     AddAttribute("ReadOnly", "yes");
-    }
+  }
 
-  if(installedFile)
-    {
+  if (installedFile) {
     cmWIXAccessControlList acl(Logger, *installedFile, *this);
     acl.Apply();
-    }
+  }
 
   patch.ApplyFragment(fileId, *this);
   EndElement("File");

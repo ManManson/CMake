@@ -58,9 +58,12 @@ The options are:
   :command:`file(GENERATE)` command to create it, and then specify
   a ``COMMAND`` to launch it.)
 
-  If ``COMMAND`` specifies an executable target (created by the
+  If ``COMMAND`` specifies an executable target name (created by the
   :command:`add_executable` command) it will automatically be replaced
-  by the location of the executable created at build time.
+  by the location of the executable created at build time. If set, the
+  :prop_tgt:`CROSSCOMPILING_EMULATOR` executable target property will
+  also be prepended to the command to allow the executable to run on
+  the host.
   Additionally a target-level dependency will be added so that the
   executable target will be built before this custom target.
 
@@ -103,7 +106,7 @@ The options are:
 ``USES_TERMINAL``
   The command will be given direct access to the terminal if possible.
   With the :generator:`Ninja` generator, this places the command in
-  the ``console`` pool.
+  the ``console`` :prop_gbl:`pool <JOB_POOLS>`.
 
 ``WORKING_DIRECTORY``
   Execute the command with the given current working directory.

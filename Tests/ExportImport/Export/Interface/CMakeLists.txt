@@ -29,7 +29,21 @@ target_compile_features(use_auto_type INTERFACE cxx_auto_type)
 add_library(use_c_restrict INTERFACE)
 target_compile_features(use_c_restrict INTERFACE c_restrict)
 
-install(TARGETS headeronly sharediface use_auto_type use_c_restrict
+add_library(source_target INTERFACE)
+target_sources(source_target INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/source_target.cpp>
+  $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/src/source_target_for_install.cpp>
+)
+install(FILES
+  source_target_for_install.cpp
+  DESTINATION src
+)
+
+add_library(cmakeonly INTERFACE)
+set_property(TARGET cmakeonly PROPERTY INTERFACE_COMPILE_DEFINITIONS [[DEF="\"\$\B"]])
+
+install(TARGETS headeronly sharediface use_auto_type use_c_restrict source_target
+                cmakeonly
   EXPORT expInterface
 )
 install(TARGETS sharedlib

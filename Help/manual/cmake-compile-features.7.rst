@@ -84,6 +84,33 @@ Feature requirements are evaluated transitively by consuming the link
 implementation.  See :manual:`cmake-buildsystem(7)` for more on
 transitive behavior of build properties and usage requirements.
 
+Requiring Language Standards
+----------------------------
+
+In projects that use a large number of commonly available features from
+a particular language standard (e.g. C++ 11) one may specify a
+meta-feature (e.g. ``cxx_std_11``) that requires use of a compiler mode
+aware of that standard.  This is simpler than specifying all the
+features individually, but does not guarantee the existence of any
+particular feature.  Diagnosis of use of unsupported features will be
+delayed until compile time.
+
+For example, if C++ 11 features are used extensively in a project's
+header files, then clients must use a compiler mode aware of C++ 11
+or above.  This can be requested with the code:
+
+.. code-block:: cmake
+
+  target_compile_features(mylib PUBLIC cxx_std_11)
+
+In this example, CMake will ensure the compiler is invoked in a mode
+that is aware of C++ 11 (or above), adding flags such as
+``-std=gnu++11`` if necessary.  This applies to sources within ``mylib``
+as well as any dependents (that may include headers from ``mylib``).
+
+Availability of Compiler Extensions
+-----------------------------------
+
 Because the :prop_tgt:`CXX_EXTENSIONS` target property is ``ON`` by default,
 CMake uses extended variants of language dialects by default, such as
 ``-std=gnu++11`` instead of ``-std=c++11``.  That target property may be
@@ -278,7 +305,7 @@ properties:
   add_library(foo INTERFACE)
   set(with_variadics ${CMAKE_CURRENT_SOURCE_DIR}/with_variadics)
   set(no_variadics ${CMAKE_CURRENT_SOURCE_DIR}/no_variadics)
-  target_link_libraries(foo
+  target_include_directories(foo
     INTERFACE
       "$<$<COMPILE_FEATURES:cxx_variadic_templates>:${with_variadics}>"
       "$<$<NOT:$<COMPILE_FEATURES:cxx_variadic_templates>>:${no_variadics}>"
@@ -295,3 +322,18 @@ the feature-appropriate include directory
 
   add_executable(consumer_no consumer_no.cpp)
   target_link_libraries(consumer_no foo)
+
+Supported Compilers
+===================
+
+CMake is currently aware of the :prop_tgt:`language standards <CXX_STANDARD>`
+and :prop_gbl:`compile features <CMAKE_CXX_KNOWN_FEATURES>` available from
+the following :variable:`compiler ids <CMAKE_<LANG>_COMPILER_ID>` as of the
+versions specified for each:
+
+* ``AppleClang``: Apple Clang for Xcode versions 4.4 though 6.2.
+* ``Clang``: Clang compiler versions 2.9 through 3.4.
+* ``GNU``: GNU compiler versions 4.4 through 5.0.
+* ``MSVC``: Microsoft Visual Studio versions 2010 through 2015.
+* ``SunPro``: Oracle SolarisStudio version 12.4.
+* ``Intel``: Intel compiler versions 12.1 through 17.0.

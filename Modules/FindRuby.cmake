@@ -1,3 +1,6 @@
+# Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
+# file Copyright.txt or https://cmake.org/licensing for details.
+
 #.rst:
 # FindRuby
 # --------
@@ -29,20 +32,6 @@
 #
 # ``RUBY_INCLUDE_PATH``
 #   same as RUBY_INCLUDE_DIRS, only provided for compatibility reasons, don't use it
-
-#=============================================================================
-# Copyright 2004-2009 Kitware, Inc.
-# Copyright 2008-2009 Alexander Neundorf <neundorf@kde.org>
-#
-# Distributed under the OSI-approved BSD License (the "License");
-# see accompanying file Copyright.txt for details.
-#
-# This software is distributed WITHOUT ANY WARRANTY; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the License for more information.
-#=============================================================================
-# (To distribute this file outside of CMake, substitute the full
-#  License text for the above reference.)
 
 #   RUBY_ARCHDIR=`$RUBY -r rbconfig -e 'printf("%s",Config::CONFIG@<:@"archdir"@:>@)'`
 #   RUBY_SITEARCHDIR=`$RUBY -r rbconfig -e 'printf("%s",Config::CONFIG@<:@"sitearchdir"@:>@)'`
@@ -234,11 +223,16 @@ if(WIN32)
      set( _RUBY_MSVC_RUNTIME "90" )
    endif()
 
+   set(_RUBY_ARCH_PREFIX "")
+   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+     set(_RUBY_ARCH_PREFIX "x64-")
+   endif()
+
    list(APPEND _RUBY_POSSIBLE_LIB_NAMES
-               "msvcr${_RUBY_MSVC_RUNTIME}-ruby${_RUBY_NODOT_VERSION}"
-               "msvcr${_RUBY_MSVC_RUNTIME}-ruby${_RUBY_NODOT_VERSION}-static"
-               "msvcrt-ruby${_RUBY_NODOT_VERSION}"
-               "msvcrt-ruby${_RUBY_NODOT_VERSION}-static" )
+               "${_RUBY_ARCH_PREFIX}msvcr${_RUBY_MSVC_RUNTIME}-ruby${_RUBY_NODOT_VERSION}"
+               "${_RUBY_ARCH_PREFIX}msvcr${_RUBY_MSVC_RUNTIME}-ruby${_RUBY_NODOT_VERSION}-static"
+               "${_RUBY_ARCH_PREFIX}msvcrt-ruby${_RUBY_NODOT_VERSION}"
+               "${_RUBY_ARCH_PREFIX}msvcrt-ruby${_RUBY_NODOT_VERSION}-static" )
 endif()
 
 find_library(RUBY_LIBRARY NAMES ${_RUBY_POSSIBLE_LIB_NAMES} HINTS ${RUBY_POSSIBLE_LIB_DIR} )

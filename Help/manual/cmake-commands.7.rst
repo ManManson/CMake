@@ -29,6 +29,7 @@ These commands may be used freely in CMake projects.
    /command/build_command
    /command/cmake_host_system_information
    /command/cmake_minimum_required
+   /command/cmake_parse_arguments
    /command/cmake_policy
    /command/configure_file
    /command/continue
@@ -68,9 +69,9 @@ These commands may be used freely in CMake projects.
    /command/include
    /command/install
    /command/link_directories
+   /command/link_libraries
    /command/list
    /command/load_cache
-   /command/load_command
    /command/macro
    /command/mark_as_advanced
    /command/math
@@ -118,7 +119,7 @@ versions of CMake.  Do not use them in new code.
    /command/install_files
    /command/install_programs
    /command/install_targets
-   /command/link_libraries
+   /command/load_command
    /command/make_directory
    /command/output_required_files
    /command/remove

@@ -14,8 +14,14 @@ target_include_directories(upstream SYSTEM PUBLIC
   $<TARGET_PROPERTY:systemlib,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
+add_library(config_specific INTERFACE)
+set(testConfig ${CMAKE_BUILD_TYPE})
+target_include_directories(config_specific SYSTEM INTERFACE
+  "$<$<CONFIG:${testConfig}>:${CMAKE_CURRENT_SOURCE_DIR}/config_specific>"
+)
+
 add_library(consumer consumer.cpp)
-target_link_libraries(consumer upstream)
+target_link_libraries(consumer upstream config_specific)
 target_compile_options(consumer PRIVATE -Werror=unused-variable)
 
 add_library(iface IMPORTED INTERFACE)
@@ -28,6 +34,16 @@ target_compile_options(imported_consumer PRIVATE -Werror=unused-variable)
 add_library(imported_consumer2 imported_consumer.cpp)
 target_link_libraries(imported_consumer2 imported_consumer)
 target_compile_options(imported_consumer2 PRIVATE -Werror=unused-variable)
+
+# add a target which has a relative system include
+add_library(somelib imported_consumer.cpp)
+target_include_directories(somelib SYSTEM PUBLIC "systemlib_header_only")
+target_compile_options(somelib PRIVATE -Werror=unused-variable)
+
+# add a target which consumes a relative system include
+add_library(otherlib upstream.cpp)
+target_link_libraries(otherlib PUBLIC somelib)
+target_compile_options(somelib PRIVATE -Werror=unused-variable)
 
 macro(do_try_compile error_option)
   set(TC_ARGS

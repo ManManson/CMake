@@ -40,10 +40,6 @@ otherwise expands to nothing.
 
 Available logical expressions are:
 
-``$<0:...>``
-  Empty string (ignores ``...``)
-``$<1:...>``
-  Content of ``...``
 ``$<BOOL:...>``
   ``1`` if the ``...`` is true, else ``0``
 ``$<AND:?[,?]...>``
@@ -70,12 +66,16 @@ Available logical expressions are:
   ``1`` if the CMake-id of the C compiler matches ``comp``, otherwise ``0``.
 ``$<CXX_COMPILER_ID:comp>``
   ``1`` if the CMake-id of the CXX compiler matches ``comp``, otherwise ``0``.
-``$<VERSION_GREATER:v1,v2>``
-  ``1`` if ``v1`` is a version greater than ``v2``, else ``0``.
 ``$<VERSION_LESS:v1,v2>``
   ``1`` if ``v1`` is a version less than ``v2``, else ``0``.
+``$<VERSION_GREATER:v1,v2>``
+  ``1`` if ``v1`` is a version greater than ``v2``, else ``0``.
 ``$<VERSION_EQUAL:v1,v2>``
   ``1`` if ``v1`` is the same version as ``v2``, else ``0``.
+``$<VERSION_LESS_EQUAL:v1,v2>``
+  ``1`` if ``v1`` is a version less than or equal to ``v2``, else ``0``.
+``$<VERSION_GREATER_EQUAL:v1,v2>``
+  ``1`` if ``v1`` is a version greater than or equal to ``v2``, else ``0``.
 ``$<C_COMPILER_VERSION:ver>``
   ``1`` if the version of the C compiler matches ``ver``, otherwise ``0``.
 ``$<CXX_COMPILER_VERSION:ver>``
@@ -92,7 +92,47 @@ Available logical expressions are:
   increases the required :prop_tgt:`C_STANDARD` or :prop_tgt:`CXX_STANDARD`
   for the 'head' target, an error is reported.  See the
   :manual:`cmake-compile-features(7)` manual for information on
-  compile features.
+  compile features and a list of supported compilers.
+``$<COMPILE_LANGUAGE:lang>``
+  ``1`` when the language used for compilation unit matches ``lang``,
+  otherwise ``0``.  This expression used to specify compile options for
+  source files of a particular language in a target. For example, to specify
+  the use of the ``-fno-exceptions`` compile option (compiler id checks
+  elided):
+
+  .. code-block:: cmake
+
+    add_executable(myapp main.cpp foo.c bar.cpp)
+    target_compile_options(myapp
+      PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
+    )
+
+  This generator expression has limited use because it is not possible to
+  use it with the Visual Studio generators.  Portable buildsystems would
+  not use this expression, and would create separate libraries for each
+  source file language instead:
+
+  .. code-block:: cmake
+
+    add_library(myapp_c foo.c)
+    add_library(myapp_cxx foo.c)
+    target_compile_options(myapp_cxx PUBLIC -fno-exceptions)
+    add_executable(myapp main.cpp)
+    target_link_libraries(myapp myapp_c myapp_cxx)
+
+  The ``Makefile`` and ``Ninja`` based generators can also use this
+  expression to specify compile-language specific compile definitions
+  and include directories:
+
+  .. code-block:: cmake
+
+    add_executable(myapp main.cpp foo.c bar.cpp)
+    target_compile_definitions(myapp
+      PRIVATE $<$<COMPILE_LANGUAGE:CXX>:COMPILING_CXX>
+    )
+    target_include_directories(myapp
+      PRIVATE $<$<COMPILE_LANGUAGE:CXX>:/opt/foo/cxx_headers>
+    )
 
 Informational Expressions
 =========================
@@ -174,6 +214,10 @@ Available informational expressions are:
 ``$<INSTALL_PREFIX>``
   Content of the install prefix when the target is exported via
   :command:`install(EXPORT)` and empty otherwise.
+``$<COMPILE_LANGUAGE>``
+  The compile language of source files when evaluating compile options. See
+  the unary version for notes about portability of this generator
+  expression.
 
 Output Expressions
 ==================
@@ -185,7 +229,7 @@ comparison::
   -I$<JOIN:$<TARGET_PROPERTY:INCLUDE_DIRECTORIES>, -I>
 
 generates a string of the entries in the :prop_tgt:`INCLUDE_DIRECTORIES` target
-property with each entry preceeded by ``-I``. Note that a more-complete use
+property with each entry preceded by ``-I``. Note that a more-complete use
 in this situation would require first checking if the INCLUDE_DIRECTORIES
 property is non-empty::
 
@@ -197,6 +241,10 @@ where ``${prop}`` refers to a helper variable::
 
 Available output expressions are:
 
+``$<0:...>``
+  Empty string (ignores ``...``)
+``$<1:...>``
+  Content of ``...``
 ``$<JOIN:list,...>``
   Joins the list with the content of ``...``
 ``$<ANGLE-R>``
@@ -234,3 +282,7 @@ Available output expressions are:
   object of type ``OBJECT_LIBRARY``.  This expression may only be used in
   the sources of :command:`add_library` and :command:`add_executable`
   commands.
+``$<SHELL_PATH:...>``
+  Content of ``...`` converted to shell path style. For example, slashes are
+  converted to backslashes in Windows shells and drive letters are converted
+  to posix paths in MSYS shells. The ``...`` must be an absolute path.

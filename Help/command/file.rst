@@ -65,7 +65,10 @@ Parse a list of ASCII strings from ``<filename>`` and store it in
  Consider only strings that match the given regular expression.
 
 ``ENCODING <encoding-type>``
- Consider strings of a given encoding.  "UTF-8" is currently supported.
+ Consider strings of a given encoding.  Currently supported encodings are:
+ UTF-8, UTF-16LE, UTF-16BE, UTF-32LE, UTF-32BE.  If the ENCODING option
+ is not provided and the file has a Byte Order Mark, the ENCODING option
+ will be defaulted to respect the Byte Order Mark.
 
 For example, the code
 
@@ -80,24 +83,34 @@ from the input file.
 
 ::
 
-  file(<MD5|SHA1|SHA224|SHA256|SHA384|SHA512> <filename> <variable>)
+  file(<HASH> <filename> <variable>)
 
 Compute a cryptographic hash of the content of ``<filename>`` and
-store it in a ``<variable>``.
+store it in a ``<variable>``.  The supported ``<HASH>`` algorithm names
+are those listed by the :ref:`string(\<HASH\>) <Supported Hash Algorithms>`
+command.
 
 ------------------------------------------------------------------------------
 
 ::
 
-  file(GLOB <variable> [RELATIVE <path>] [<globbing-expressions>...])
-  file(GLOB_RECURSE <variable> [RELATIVE <path>]
-       [FOLLOW_SYMLINKS] [<globbing-expressions>...])
+  file(GLOB <variable>
+       [LIST_DIRECTORIES true|false] [RELATIVE <path>]
+       [<globbing-expressions>...])
+  file(GLOB_RECURSE <variable> [FOLLOW_SYMLINKS]
+       [LIST_DIRECTORIES true|false] [RELATIVE <path>]
+       [<globbing-expressions>...])
 
 Generate a list of files that match the ``<globbing-expressions>`` and
 store it into the ``<variable>``.  Globbing expressions are similar to
 regular expressions, but much simpler.  If ``RELATIVE`` flag is
 specified, the results will be returned as relative paths to the given
-path.
+path.  No specific order of results is defined other than that it is
+deterministic.  If order is important then sort the list explicitly
+(e.g. using the :command:`list(SORT)` command).
+
+By default ``GLOB`` lists directories - directories are omited in result if
+``LIST_DIRECTORIES`` is set to false.
 
 .. note::
   We do not recommend using GLOB to collect a list of source files from
@@ -115,6 +128,11 @@ The ``GLOB_RECURSE`` mode will traverse all the subdirectories of the
 matched directory and match the files.  Subdirectories that are symlinks
 are only traversed if ``FOLLOW_SYMLINKS`` is given or policy
 :policy:`CMP0009` is not set to ``NEW``.
+
+By default ``GLOB_RECURSE`` omits directories from result list - setting
+``LIST_DIRECTORIES`` to true adds directories to result list.
+If ``FOLLOW_SYMLINKS`` is given or policy :policy:`CMP0009` is not set to
+``OLD`` then ``LIST_DIRECTORIES`` treats symlinks as directories.
 
 Examples of recursive globbing include::
 
@@ -137,7 +155,8 @@ Move a file or directory within a filesystem from ``<oldname>`` to
   file(REMOVE_RECURSE [<files>...])
 
 Remove the given files.  The ``REMOVE_RECURSE`` mode will remove the given
-files and directories, also non-empty directories
+files and directories, also non-empty directories. No error is emitted if a
+given file does not exist.
 
 ------------------------------------------------------------------------------
 
@@ -206,13 +225,19 @@ Options to both ``DOWNLOAD`` and ``UPLOAD`` are:
 ``TIMEOUT <seconds>``
   Terminate the operation after a given total time has elapsed.
 
+``USERPWD <username>:<password>``
+  Set username and password for operation.
+
+``HTTPHEADER <HTTP-header>``
+  HTTP header for operation. Suboption can be repeated several times.
+
 Additional options to ``DOWNLOAD`` are:
 
 ``EXPECTED_HASH ALGO=<value>``
 
   Verify that the downloaded content hash matches the expected value, where
-  ``ALGO`` is one of ``MD5``, ``SHA1``, ``SHA224``, ``SHA256``, ``SHA384``, or
-  ``SHA512``.  If it does not match, the operation fails with an error.
+  ``ALGO`` is one of the algorithms supported by ``file(<HASH>)``.
+  If it does not match, the operation fails with an error.
 
 ``EXPECTED_MD5 <value>``
   Historical short-hand for ``EXPECTED_HASH MD5=<value>``.
@@ -299,8 +324,12 @@ preserves input file timestamps, and optimizes out a file if it exists
 at the destination with the same timestamp.  Copying preserves input
 permissions unless explicit permissions or ``NO_SOURCE_PERMISSIONS``
 are given (default is ``USE_SOURCE_PERMISSIONS``).
+
 See the :command:`install(DIRECTORY)` command for documentation of
-permissions, ``PATTERN``, ``REGEX``, and ``EXCLUDE`` options.
+permissions, ``FILES_MATCHING``, ``PATTERN``, ``REGEX``, and
+``EXCLUDE`` options.  Copying directories preserves the structure
+of their content even if options are used to select a subset of
+files.
 
 The ``INSTALL`` signature differs slightly from ``COPY``: it prints
 status messages (subject to the :variable:`CMAKE_INSTALL_MESSAGE` variable),
